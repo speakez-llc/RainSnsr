@@ -20,7 +20,6 @@ type MeadowApp() =
     let mutable p2relay : Relay = null
     let mutable rainSensor : IDigitalInputPort = null
     let mutable wiperServo : Servo = null
-
     let mutable led : RgbPwmLed = null
     
     let toggleRelay (relay : Relay) (message : string) =
@@ -55,14 +54,14 @@ type MeadowApp() =
         do! Task.Delay(1000) |> Async.AwaitTask
     }
         
-    let runRainSnsrAsync (duration : TimeSpan) = async {
+    let runRainSnsrAsync = async {
         do! wiperServo.RotateTo(Angle(0.0, Angle.UnitType.Degrees)) |> Async.AwaitTask
         Resolver.Log.Info "Starting Rain Sensor..."
         while true do
             let rainState = getRainState |> Async.RunSynchronously
             if rainState then
                 do! toggleRelay retractRelay "Retracting wiper..."
-                do! ShowColor Color.Aqua duration 
+                do! ShowColor Color.Aqua (TimeSpan.FromMilliseconds 500) 
                 do! wiperServo.RotateTo(Angle 95) |> Async.AwaitTask
                 shakeRainSnsr |> Async.RunSynchronously
                 do! wiperServo.RotateTo(Angle 0) |> Async.AwaitTask          
@@ -93,5 +92,5 @@ type MeadowApp() =
 
     override this.Run () =
         task {
-            do! runRainSnsrAsync (TimeSpan.FromMilliseconds 500)
+            do! runRainSnsrAsync
         } 
