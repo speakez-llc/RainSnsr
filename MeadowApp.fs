@@ -136,7 +136,8 @@ type MeadowApp() =
     override this.Initialize() =
         Resolver.Log.Info "Creating Outputs"
         let servoConfig = ServoConfig(
-            minimumAngle = Angle 0
+            minimumAngle = Angle 0,
+            maximumAngle = Angle 110
             )
         Resolver.Log.Info "Creating Relay Outputs"
         retractRelay <- Relay(MeadowApp.Device.Pins.D09)
