@@ -23,46 +23,14 @@ type MeadowApp() =
 
     let mutable led : RgbPwmLed = null
     
-    let retractAwning =
+    let toggleRelay (relay : Relay) (message : string) =
         async {
-            Resolver.Log.Info("Toggling Retract Relay...")
-            retractRelay.Toggle()
+            Resolver.Log.Info(message)
+            relay.Toggle()
             do! Task.Delay(150) |> Async.AwaitTask
-            retractRelay.Toggle()
+            relay.Toggle()
         }
-            
-    let expandAwning =
-        async {
-            Resolver.Log.Info("Toggling Extend Relay...")
-            extendRelay.Toggle()
-            do! Task.Delay(150) |> Async.AwaitTask
-            extendRelay.Toggle()
-        }
-            
-    let stopAwning =
-        async {
-            Resolver.Log.Info("Toggling Stop Relay...")
-            stopRelay.Toggle()
-            do! Task.Delay(150) |> Async.AwaitTask
-            stopRelay.Toggle()
-        }
-        
-    let toggleLight =
-        async {
-            Resolver.Log.Info("Toggling Light Relay...")
-            lightRelay.Toggle()
-            do! Task.Delay(150) |> Async.AwaitTask
-            lightRelay.Toggle()
-        }
-        
-    let toggleP2 =
-        async {
-            Resolver.Log.Info("Toggling P2 Relay...")
-            p2relay.Toggle()
-            do! Task.Delay(150) |> Async.AwaitTask
-            p2relay.Toggle()
-        }
-
+    
     let ShowColor (color : Color) (duration : TimeSpan) = async {
         led.SetColor(color, 15.0f) 
         do! Async.Sleep duration
@@ -105,8 +73,8 @@ type MeadowApp() =
     let shakeRainSnsr = async {
         let stopwatch = System.Diagnostics.Stopwatch()
         stopwatch.Start()
-        let rattleAngle = wiperServo.Config.MaximumAngle - (Angle 10.0)
-        let maxAngle = wiperServo.Config.MaximumAngle
+        let rattleAngle = Angle 95
+        let maxAngle = Angle 110
 
         while stopwatch.Elapsed.TotalSeconds < 2.0 do
             do! wiperServo.RotateTo(rattleAngle) |> Async.AwaitTask
@@ -118,16 +86,14 @@ type MeadowApp() =
         do! wiperServo.RotateTo(Angle(0.0, Angle.UnitType.Degrees)) |> Async.AwaitTask
         Resolver.Log.Info "Starting Rain Sensor..."
         while true do
-            let maxAngle = wiperServo.Config.MaximumAngle
-            let minAngle = wiperServo.Config.MinimumAngle
             let rainState = getRainState |> Async.RunSynchronously
             if rainState then
-                do! retractAwning
+                do! toggleRelay retractRelay "Retracting wiper..."
                 do! ShowColor Color.Aqua duration 
                 do! StopLED
-                do! wiperServo.RotateTo(maxAngle) |> Async.AwaitTask
+                do! wiperServo.RotateTo(Angle 95) |> Async.AwaitTask
                 shakeRainSnsr |> Async.RunSynchronously
-                do! wiperServo.RotateTo(minAngle) |> Async.AwaitTask          
+                do! wiperServo.RotateTo(Angle 0) |> Async.AwaitTask          
                 do! Task.Delay(5000) |> Async.AwaitTask
             else 
                 do! Task.Delay(5000) |> Async.AwaitTask
