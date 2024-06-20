@@ -11,6 +11,7 @@
         <None Include="wifi.config.yaml" />
         <Compile Include="MeadowApp.fs" />
         <Content Include="README.md" />
+        <Folder Include="img\" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="D:\repos\Meadow.Core\source\Meadow.Core\Meadow.Core.csproj" />
