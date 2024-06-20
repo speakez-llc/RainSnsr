@@ -92,24 +92,52 @@ type MeadowApp() =
             do! ShowColor Color.White duration
             do! StopLED
     }
-    let runServoAsync = async {
-        Resolver.Log.Info "Initializing Servo..."
+    
+    let getRainState : Async<bool> = async {
+        if rainSensor.State then
+            Resolver.Log.Info("It's raining!")
+            return true
+        else
+            Resolver.Log.Info("No Rain!")
+            return false
+    }
+    
+    let shakeRainSnsr = async {
+        let stopwatch = System.Diagnostics.Stopwatch()
+        stopwatch.Start()
+        let rattleAngle = wiperServo.Config.MaximumAngle - (Angle 10.0)
+        let maxAngle = wiperServo.Config.MaximumAngle
+
+        while stopwatch.Elapsed.TotalSeconds < 2.0 do
+            do! wiperServo.RotateTo(rattleAngle) |> Async.AwaitTask
+            do! wiperServo.RotateTo(maxAngle) |> Async.AwaitTask
+        do! Task.Delay(1000) |> Async.AwaitTask
+    }
+        
+    let runRainSnsrAsync (duration : TimeSpan) = async {
         do! wiperServo.RotateTo(Angle(0.0, Angle.UnitType.Degrees)) |> Async.AwaitTask
-        Resolver.Log.Info "Running Servo..."
+        Resolver.Log.Info "Starting Rain Sensor..."
         while true do
-            do! wiperServo.RotateTo(wiperServo.Config.MaximumAngle) |> Async.AwaitTask
-            do! Task.Delay(1000) |> Async.AwaitTask
-            do! wiperServo.RotateTo(wiperServo.Config.MinimumAngle) |> Async.AwaitTask          
-            do! Task.Delay(1000) |> Async.AwaitTask
+            let maxAngle = wiperServo.Config.MaximumAngle
+            let minAngle = wiperServo.Config.MinimumAngle
+            let rainState = getRainState |> Async.RunSynchronously
+            if rainState then
+                do! retractAwning
+                do! ShowColor Color.Aqua duration 
+                do! StopLED
+                do! wiperServo.RotateTo(maxAngle) |> Async.AwaitTask
+                shakeRainSnsr |> Async.RunSynchronously
+                do! wiperServo.RotateTo(minAngle) |> Async.AwaitTask          
+                do! Task.Delay(5000) |> Async.AwaitTask
+            else 
+                do! Task.Delay(5000) |> Async.AwaitTask
     }
 
     override this.Initialize() =
         Resolver.Log.Info "Creating Outputs"
         let servoConfig = ServoConfig(
-            maximumAngle = Angle(90, Angle.UnitType.Degrees),
-            minimumPulseDuration = 650,
-            maximumPulseDuration = 1300
-        )
+            minimumAngle = Angle 0
+            )
         Resolver.Log.Info "Creating Relay Outputs"
         retractRelay <- Relay(MeadowApp.Device.Pins.D09)
         stopRelay <- Relay(MeadowApp.Device.Pins.D08)
@@ -132,35 +160,6 @@ type MeadowApp() =
 
     override this.Run () =
         task {
-            do Resolver.Log.Info "Run LED..."
-            do! CycleColors(TimeSpan.FromSeconds(1.0))
-        } |> ignore
-        task {
             do Resolver.Log.Info "Run Servo..."
-            do! runServoAsync
-        } |> ignore
-        task {
-            do Resolver.Log.Info "Run Each Relay..."
-            while true do
-                Resolver.Log.Info("tiggering relays")
-                do! retractAwning
-                do! Task.Delay(1000)
-                do! stopAwning
-                do! Task.Delay(1000)
-                do! expandAwning
-                do! Task.Delay(1000)
-                do! toggleLight
-                do! Task.Delay(1000)
-                do! toggleP2
-                do! Task.Delay(1000)
-        } |> ignore
-        task {
-            do Resolver.Log.Info "Run Rain Sensor..."
-            while true do
-                let rain = rainSensor.State
-                if rain then
-                    Resolver.Log.Info("It's raining!")
-                else
-                    Resolver.Log.Info("It's not raining!")
-                do! Task.Delay(1000)
-        }
+            do! runRainSnsrAsync (TimeSpan.FromMilliseconds 500)
+        } 
