@@ -45,13 +45,11 @@ type MeadowApp() =
             return false
     }
     
-    let shakeRainSnsr = async {
-        let stopwatch = System.Diagnostics.Stopwatch()
-        stopwatch.Start()
-        while stopwatch.Elapsed.TotalSeconds < 2.0 do
-            do! wiperServo.RotateTo(Angle 155) |> Async.AwaitTask
-            do! wiperServo.RotateTo(Angle 180) |> Async.AwaitTask
-        do! Task.Delay(1000) |> Async.AwaitTask
+    let clearRainSnsr = async {
+            do! wiperServo.RotateTo(Angle 95) |> Async.AwaitTask
+            do! Task.Delay(500) |> Async.AwaitTask
+            do! wiperServo.RotateTo(Angle 135) |> Async.AwaitTask
+            do! Task.Delay(2500) |> Async.AwaitTask
     }
         
     let runRainSnsrAsync = async {
@@ -62,8 +60,8 @@ type MeadowApp() =
             if rainState then
                 do! toggleRelay retractRelay "Retracting awning..."
                 do! ShowColor Color.Aqua (TimeSpan.FromMilliseconds 500) 
-                do! wiperServo.RotateTo(Angle 160) |> Async.AwaitTask
-                shakeRainSnsr |> Async.RunSynchronously
+                do! wiperServo.RotateTo(Angle 135) |> Async.AwaitTask
+                clearRainSnsr |> Async.RunSynchronously
                 do! wiperServo.RotateTo(Angle 0) |> Async.AwaitTask          
                 do! Task.Delay(5000) |> Async.AwaitTask
             else 
@@ -72,21 +70,23 @@ type MeadowApp() =
 
     override this.Initialize() =
         Resolver.Log.Info "Initialize..."
-        let servoConfig = ServoConfig(
-            minimumAngle = Angle 0,
-            maximumAngle = Angle 180
-            )
+        led <- new RgbPwmLed(
+            MeadowApp.Device.Pins.D02,
+            MeadowApp.Device.Pins.D03, 
+            MeadowApp.Device.Pins.D04)
         retractRelay <- Relay(MeadowApp.Device.Pins.D09)
         stopRelay <- Relay(MeadowApp.Device.Pins.D08)
         extendRelay <- Relay(MeadowApp.Device.Pins.D07)
         lightRelay <- Relay(MeadowApp.Device.Pins.D06)
         p2relay <- Relay(MeadowApp.Device.Pins.D05)
         rainSensor <- MeadowApp.Device.Pins.D13.CreateDigitalInputPort(ResistorMode.ExternalPullDown)
+        let servoConfig = ServoConfig(
+            minimumAngle = Angle 0,
+            maximumAngle = Angle 135,
+            minimumPulseDuration = 1000,
+            maximumPulseDuration = 2000
+            )
         wiperServo <- Servo(MeadowApp.Device.Pins.D12, servoConfig)
-        led <- new RgbPwmLed(
-            MeadowApp.Device.Pins.D02,
-            MeadowApp.Device.Pins.D03, 
-            MeadowApp.Device.Pins.D04)
 
         Task.CompletedTask;
 
