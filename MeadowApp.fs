@@ -46,10 +46,13 @@ type MeadowApp() =
     }
     
     let clearRainSnsr = async {
+        let stopwatch = System.Diagnostics.Stopwatch()
+        do! Task.Delay(2000) |> Async.AwaitTask
+        stopwatch.Start()
+        while stopwatch.Elapsed.TotalSeconds < 5.0 do
             do! wiperServo.RotateTo(Angle 95) |> Async.AwaitTask
-            do! Task.Delay(500) |> Async.AwaitTask
-            do! wiperServo.RotateTo(Angle 135) |> Async.AwaitTask
-            do! Task.Delay(2500) |> Async.AwaitTask
+            do! wiperServo.RotateTo(Angle 180) |> Async.AwaitTask
+        do! Task.Delay(2000) |> Async.AwaitTask
     }
         
     let runRainSnsrAsync = async {
@@ -60,7 +63,7 @@ type MeadowApp() =
             if rainState then
                 do! toggleRelay retractRelay "Retracting awning..."
                 do! ShowColor Color.Aqua (TimeSpan.FromMilliseconds 500) 
-                do! wiperServo.RotateTo(Angle 135) |> Async.AwaitTask
+                do! wiperServo.RotateTo(Angle 180) |> Async.AwaitTask
                 clearRainSnsr |> Async.RunSynchronously
                 do! wiperServo.RotateTo(Angle 0) |> Async.AwaitTask          
                 do! Task.Delay(5000) |> Async.AwaitTask
@@ -82,9 +85,9 @@ type MeadowApp() =
         rainSensor <- MeadowApp.Device.Pins.D13.CreateDigitalInputPort(ResistorMode.ExternalPullDown)
         let servoConfig = ServoConfig(
             minimumAngle = Angle 0,
-            maximumAngle = Angle 135,
+            maximumAngle = Angle 180,
             minimumPulseDuration = 1000,
-            maximumPulseDuration = 2000
+            maximumPulseDuration = 2406
             )
         wiperServo <- Servo(MeadowApp.Device.Pins.D12, servoConfig)
 
