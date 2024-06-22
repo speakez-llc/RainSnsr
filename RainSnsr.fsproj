@@ -12,6 +12,8 @@
         <Compile Include="MeadowApp.fs" />
         <Content Include="README.md" />
         <Folder Include="img\" />
+        <Content Include="design\logic.md" />
+        <Content Include="design\interfacing.md" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="D:\repos\Meadow.Core\source\Meadow.Core\Meadow.Core.csproj" />

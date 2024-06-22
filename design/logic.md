@@ -7,16 +7,17 @@ The sensor will have a variety of functions aside from the core case of detectin
   - [ ] Stop Awning
   - [ ] Extend Awning
   - [ ] Toggle Awning Light
-  - [ ] P2 Configuration
+  - [ ] Get Servo Position
 -[ ] Compound Commands
   - [ ] P2 double tap with retract double tap
   - [ ] P2 single tap with retract single tap
-  - [ ] Double toggle light
+  - [ ] Double Toggle Awning Light
   - [ ] Retract awning after sundown
   - [ ] Extend awning after sunrise
 -[ ] State Elements
   - [ ] Awning Position
   - [ ] Weather Conditions
+  - [ ] Interval Since Weather Cleared
   - [ ] Set Weather Check Interval
   - [ ] Last Weather Check
   - [ ] Last Weather Alert
@@ -24,6 +25,7 @@ The sensor will have a variety of functions aside from the core case of detectin
   - [ ] Last Wind Reported
   - [ ] Last Rain Event
   - [ ] Last Retract
+  - [ ] Cycle Count
   - [ ] Last Extend
   - [ ] Last Device State Check
   - [ ] Location
