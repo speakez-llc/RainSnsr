@@ -18,4 +18,4 @@ The relay that manages the rain sensor is separate from the relay bank that outp
 
 The remote normally takes a 3V coin cell battery so I simply pulled those battery mounts from the circuit board and wired in the 3.3V DC that's available from the Feather into the remote. This way I don't have to worry about another buck converter to step down the voltage. (or a battery)
 
-I added an IPEX antenna and routed it through the "sealed" grommet at the lower side of the case in order to better pick up/transmit WiFi signals. But the install location is fairly close to the house and the router is placed in the "TV room" adjacent to the the wall that holdes the awning, so I'm not too worried about signal strength.
+I added an IPEX antenna and routed it through the "sealed" grommet at the lower side of the case in order to better pick up/transmit WiFi signals. But the install location is fairly close to the house and the router is placed in the "TV room" adjacent to the the wall that holds the awning, so I'm not too worried about signal strength.
