@@ -14,7 +14,7 @@ The sensor will have a variety of functions aside from the core case of detectin
   - [ ] Double Toggle Awning Light
   - [ ] Retract awning after sundown
   - [ ] Extend awning after sunrise
--[ ] State Elements
+- [ ] State Elements
   - [ ] Awning Position
   - [ ] Weather Conditions
   - [ ] Interval Since Weather Cleared
