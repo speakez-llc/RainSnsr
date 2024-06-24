@@ -8,6 +8,7 @@ The sensor will have a variety of functions aside from the core case of detectin
   - [ ] Extend Awning
   - [ ] Toggle Awning Light
   - [ ] Get Servo Position
+
 -[ ] Compound Commands
   - [ ] P2 double tap with retract double tap
   - [ ] P2 single tap with retract single tap
